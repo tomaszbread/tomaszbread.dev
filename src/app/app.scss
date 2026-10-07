@@ -1,0 +1,862 @@
+// Jednostka projektu: u(n) to n pikseli z projektu pomnozone przez --u.
+// Strona ma dwa projekty - desktopowy (karta 980 + 2 x 24 marginesu = 1028) i telefoniczny
+// (narysowany dla ekranu 393) - i kazdy skaluje sie w calosci, jak obrazek. Dzieki temu
+// na zadnej szerokosci tekst nie lamie sie inaczej niz w projekcie i nic sie nie rozjezdza.
+// Kazdy wymiar w tym pliku ma isc przez u(); wyjatkiem sa wlosowe linie 1px.
+@function u($n) {
+  @return calc(#{$n} * var(--u));
+}
+
+:host {
+  // Desktop: od 1028 w gore 1:1, ponizej cala karta maleje razem z oknem.
+  --u: min(1px, calc(100vw / 1028));
+  --ink: #2a2622;
+  --muted: #5f5852;
+  --line: #bcb6b0;
+  --paper: #fcfbf9;
+  --paper-edge: #f4f1ee;
+  --icon-color: #9a9793;
+  --name-color: #6b6b6b;
+  --project-color: #525252;
+  --logo-mark: #9a9a9a;
+  --logo-text: #7a7a7a;
+  --logo-hover: #565656;
+  --heading: #444444;
+  // wciecie tekstu za znacznikiem "›" (opisy projektow i ich adresy)
+  --project-indent: #{u(20.8)};
+
+  color: var(--ink);
+  display: block;
+}
+
+.page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: u(48) u(24);
+}
+
+.cv-scale-shell {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.cv {
+  width: u(980);
+  // karta nie oddaje szerokosci paskowi przewijania - tresc w srodku jest liczona na 980
+  flex: none;
+  background: #ffffff;
+  box-shadow: 0 u(22) u(45) rgba(27, 22, 18, 0.12);
+  border-radius: u(10);
+  padding: u(48);
+  animation: cv-enter 600ms ease-out both;
+}
+
+.cv__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: u(32);
+}
+
+// Logo startuje na tej samej pionowej linii co tresc lewej kolumny (projekty):
+// najpierw znak - bochenek - a obok niego nazwa. Stopien pisma siedzi tutaj, zeby
+// znak mogl brac wysokosc od nazwy (em) i rosl razem z nia.
+.cv__identity {
+  display: flex;
+  align-items: center;
+  gap: 0.45em;
+  padding-left: u(32);
+  font-size: clamp(u(27.2), 2.7vw, u(36.8));
+}
+
+// Znak jest wyraznie wyzszy od nazwy: dwa wiersze nazwy maja od gory wersalikow
+// do linii pisma ok. 1.24em (stopien 0.75em), znak 1.63em.
+.cv__mark {
+  flex: none;
+  width: auto;
+  height: 1.6335em;
+}
+
+.cv__name {
+  margin: 0;
+  font-family: "Share Tech Mono", monospace;
+  font-size: 0.75em;
+  line-height: 0.95;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  // ten sam szary co bochenek obok
+  color: var(--logo-mark);
+}
+
+.cv__name > span {
+  display: block;
+}
+
+.cv__name-suffix {
+  display: inline;
+  font-family: "Share Tech Mono", monospace;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.56em;
+}
+
+// Nazwa obok znaku jest ukryta - w naglowku zostaje sam bochenek. Tekst zostaje
+// w dokumencie jako h1, wiec czytniki ekranu i wyszukiwarki dalej go widza.
+// Zeby ja przywrocic, wystarczy usunac ten blok.
+.cv__identity .cv__name {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.cv__contact {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: u(6);
+  // kroj opisow projektow, tylko w grubszej odmianie
+  font-family: "Saira Semi Condensed", "Work Sans", sans-serif;
+  font-weight: 600;
+  font-style: normal;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: u(13);
+  text-align: right;
+  color: var(--logo-text);
+}
+
+.cv__rule {
+  border-top: 1px solid var(--line);
+  margin: u(26) 0 u(52);
+}
+
+.cv__body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.cv__column {
+  padding: 0 u(28) 0 0;
+}
+
+// Projekty stoja po lewej i niosa linie srodkowa, tekst o mnie po prawej. Kolumna
+// tekstu ma szersze marginesy (60 przy linii, 32 od krawedzi) niz projekty (36 i 32).
+.cv__column--about {
+  padding: 0 u(32) 0 u(60);
+}
+
+.cv__column--projects {
+  padding: 0 u(36) 0 u(32);
+  border-right: 1px solid var(--line);
+}
+
+.cv__column--projects > .cv__section {
+  padding-bottom: 0;
+}
+
+.cv__section {
+  padding: u(24) 0;
+  border-top: 1px solid var(--line);
+  animation: section-enter 520ms ease-out both;
+}
+
+.cv__column > .cv__section:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+.cv__column > .cv__section:nth-child(1) {
+  animation-delay: 120ms;
+}
+
+.cv__column > .cv__section:nth-child(2) {
+  animation-delay: 220ms;
+}
+
+.cv__section-title {
+  margin: 0 0 u(24);
+  // Share Tech Mono ma tylko odmiane 400 - bez tego h2 dziedziczy 700
+  // i dostaje syntetyczne pogrubienie.
+  font-family: "Share Tech Mono", monospace;
+  font-weight: 400;
+  font-size: u(20.8);
+  line-height: 1;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--heading);
+}
+
+// Kolumna "o mnie" to sam tekst - dostaje wiecej powietrza wokol linii i pod naglowkami.
+.cv__column--about .cv__section {
+  padding: u(46) 0;
+}
+
+.cv__column--about > .cv__section:first-child {
+  padding-top: 0;
+}
+
+// Ostatnia sekcja nie potrzebuje powietrza pod spodem - karta ma wlasny margines.
+.cv__column--about .cv__section:last-child {
+  padding-bottom: 0;
+}
+
+.cv__column--about .cv__section-title {
+  margin-bottom: u(36);
+}
+
+.cv__item + .cv__item {
+  margin-top: u(20);
+}
+
+.cv__item-title {
+  margin: 0 0 u(4);
+  font-weight: 600;
+  font-size: u(15.2);
+}
+
+.cv__item-role {
+  margin: 0 0 u(10);
+  font-style: italic;
+  font-size: u(13.6);
+  color: var(--muted);
+}
+
+.cv p {
+  margin: 0;
+  font-family: "Saira Semi Condensed", "Work Sans", sans-serif;
+  font-size: u(14.4);
+  line-height: 1.85;
+  color: var(--muted);
+}
+
+.cv-download {
+  // pod przyciskiem tekst plynie dalej, wiec dostaje wiecej oddechu niz akapit
+  margin: u(20) 0 u(32);
+  padding: u(20) u(20);
+  width: 100%;
+  border: none;
+  border-radius: u(6);
+  background: #3fae4f;
+  color: #ffffff;
+  font-family: "Share Tech Mono", monospace;
+  font-size: u(13.6);
+  letter-spacing: 0.2em;
+  cursor: pointer;
+  transition: background-color 180ms ease;
+}
+
+.cv-download:hover,
+.cv-download:focus-visible {
+  background: #339646;
+}
+
+// Kroj, waga i kolor leca z .cv p - tu zostaje tylko odstep miedzy akapitami.
+.cv p.objective-lead,
+.cv p.objective-lead-secondary {
+  margin: 0 0 u(20);
+}
+
+// Projekty ida jeden pod drugim. Kolejny oddziela taka sama linia jak sekcje,
+// z tym samym oddechem nad nia i pod nia.
+.partial {
+  display: flex;
+  flex-direction: column;
+  row-gap: u(46);
+  column-gap: u(20);
+}
+
+.partial > .inner-section + .inner-section {
+  border-top: 1px solid var(--line);
+  padding-top: u(46);
+}
+
+// Pod logotypem Digital Diggera jest wiecej powietrza niz pod samymi tagami, wiec
+// pierwsza linia stoi o 10 wyzej; to, co pod nia, zostaje na swoim miejscu.
+.partial > .inner-section + .inner-section:nth-child(2) {
+  margin-top: u(-10);
+  padding-top: u(56);
+}
+
+.partial-padding {
+  padding-top: u(8);
+}
+
+.noselect {
+  user-select: none;
+}
+
+.inner-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: u(12);
+  align-items: center;
+}
+
+.flex-center {
+  align-items: center;
+}
+
+// Etykieta projektu: mala wersalikowa plakietka nad opisem.
+.iterator {
+  font-family: "Share Tech Mono", monospace;
+  font-size: u(12);
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--heading);
+  align-self: stretch;
+  text-align: left;
+}
+
+.iterator__no {
+  color: var(--icon-color);
+}
+
+// Adres projektu pod jego nazwa: ten sam znacznik "›" i wciecie co w opisie, podkreslony link.
+.project-url {
+  align-self: flex-start;
+  position: relative;
+  margin-left: var(--project-indent);
+  font-family: "Share Tech Mono", monospace;
+  font-size: u(12);
+  line-height: 1.2;
+  letter-spacing: 0.04em;
+  color: #555555;
+  text-decoration: underline;
+  text-decoration-color: var(--line);
+  text-decoration-thickness: 1px;
+  text-underline-offset: u(4);
+  white-space: nowrap;
+  // + gap 12px z .inner-section = 24px, tyle co pod naglowkiem sekcji
+  margin-bottom: u(12);
+  transition: color 180ms ease;
+}
+
+.project-url::before {
+  content: "›";
+  position: absolute;
+  top: 50%;
+  left: calc(-1 * var(--project-indent));
+  transform: translateY(-50%);
+  font-family: "Saira Semi Condensed", "Work Sans", sans-serif;
+  font-size: u(14.4);
+  line-height: 1;
+  letter-spacing: 0;
+  color: var(--icon-color);
+}
+
+.project-url:hover,
+.project-url:focus-visible {
+  color: var(--ink);
+  text-decoration-color: currentColor;
+}
+
+.project-description {
+  font-family: "Saira Semi Condensed", "Work Sans", sans-serif;
+  font-size: u(14.4);
+  line-height: 1.85;
+  color: var(--muted);
+  align-self: stretch;
+  text-align: left;
+  // wciecie pod znacznik "›" - tagi nizej trzymaja te sama linie
+  position: relative;
+  padding-left: var(--project-indent);
+}
+
+.project-description::before {
+  content: "›";
+  position: absolute;
+  left: 0;
+  color: var(--icon-color);
+}
+
+.project-tags {
+  // + gap 12 z .inner-section = 20 miedzy opisem a tagami
+  margin: u(8) 0 0;
+  padding: 0 0 0 var(--project-indent);
+  list-style: none;
+  align-self: stretch;
+  display: flex;
+  flex-wrap: wrap;
+  gap: u(6);
+}
+
+// Tagi poza projektami (sekcja "technology"): bez wciecia pod znacznik "›",
+// z odstepem od akapitu takim samym, jaki tagi projektu maja od opisu.
+.project-tags--plain {
+  margin-top: u(20);
+  padding-left: 0;
+}
+
+.project-tags__item {
+  padding: u(4) u(10);
+  border: 1px solid var(--icon-color);
+  border-radius: u(4);
+  font-family: "Share Tech Mono", monospace;
+  font-size: u(12.8);
+  line-height: 1.3;
+  letter-spacing: 0.06em;
+  color: var(--logo-text);
+  white-space: nowrap;
+}
+
+// Maly formularz kontaktowy pod tagami technologii. Nie jest osobna sekcja: pola
+// wygladaja jak tagi - ta sama ramka, kroj i kolor - tylko rozciagniete na szerokosc.
+.contact {
+  margin-top: u(32);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: u(6);
+}
+
+.cv p.contact__note {
+  margin-bottom: u(6);
+}
+
+.contact__field,
+.contact__send {
+  margin: 0;
+  padding: u(6) u(10);
+  border: 1px solid var(--icon-color);
+  border-radius: u(4);
+  background: transparent;
+  font-family: "Share Tech Mono", monospace;
+  font-size: u(12.8);
+  line-height: 1.3;
+  letter-spacing: 0.06em;
+  color: var(--logo-text);
+}
+
+.contact__field {
+  width: 100%;
+  // bez systemowych zaokraglen i cieni pol na iOS
+  appearance: none;
+}
+
+// pole-pulapka na boty: ludzie go nie widza i nie moga do niego dojsc klawiatura
+.contact__trap {
+  display: none;
+}
+
+.contact__send:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+// komunikat po wyslaniu; pusty nie zajmuje miejsca
+.cv p.contact__status:empty {
+  display: none;
+}
+
+.contact__field--message {
+  display: block;
+  resize: vertical;
+}
+
+.contact__field::placeholder {
+  color: var(--icon-color);
+  opacity: 1;
+}
+
+.contact__field:focus-visible,
+.contact__send:focus-visible {
+  outline: none;
+  border-color: var(--logo-hover);
+  color: var(--ink);
+}
+
+// Przycisk wysylki to tez tag: po najechaniu wypelnia sie ciemnym szarym.
+.contact__send {
+  cursor: pointer;
+  text-transform: uppercase;
+  transition:
+    background-color 180ms ease,
+    color 180ms ease,
+    border-color 180ms ease;
+}
+
+.contact__send:hover,
+.contact__send:focus-visible {
+  background: var(--logo-hover);
+  border-color: var(--logo-hover);
+  color: #ffffff;
+}
+
+.logo-digital-digger {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: u(10);
+  text-decoration: none;
+  cursor: pointer;
+  color: var(--logo-text);
+  align-self: center;
+  text-align: center;
+  // Rowny oddech zamiast sztywnej wysokosci: znaki maja rozna wysokosc, wiec stale
+  // pudelko zostawialo pod kazdym inna pustke i odstepy wychodzily nierowne.
+  // od gory mniej: nad znakiem sa juz tagi z wlasnym odstepem
+  padding: u(18) 0 u(28);
+  transition: color 180ms ease;
+}
+
+.logo-digital-digger svg {
+  width: auto;
+  height: auto;
+  max-width: u(165);
+  flex-shrink: 0;
+}
+
+// kolor dziedziczony z kontenera - napis hoveruje razem ze znakiem
+.digital-logo-txt {
+  font-family: "Schoolbell", cursive;
+  font-weight: 400;
+  font-size: u(30.4);
+  letter-spacing: 0.08em;
+  text-transform: none;
+}
+
+#vinyl {
+  width: u(145);
+  height: u(170);
+  // kompensacja pustki pod grafika w viewBox + letterboxu: rowny odstep optyczny
+  margin-bottom: u(-8);
+  animation: square 3.5s linear infinite;
+  transform-origin: center;
+  transform-box: fill-box;
+}
+
+#vinyl path,
+#chleb path,
+#chleb #zigzag {
+  fill: var(--logo-mark);
+  transition: fill 180ms ease;
+}
+
+// Linki projektow: hover bez podkreslenia; :focus-visible dostaje obrys.
+.project-link:hover,
+.project-link:focus-visible {
+  text-decoration: none;
+}
+
+.project-link:focus-visible {
+  outline: 2px solid var(--logo-hover);
+  outline-offset: u(6);
+  border-radius: u(6);
+}
+
+.project-link:hover .logo-digital-digger,
+.project-link:focus-visible .logo-digital-digger {
+  color: var(--logo-hover);
+}
+
+.project-link:hover #vinyl path,
+.project-link:focus-visible #vinyl path {
+  fill: var(--logo-hover);
+}
+
+#chleb #zigzag-mask-path {
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 10px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1 1;
+  stroke-dashoffset: 1;
+  animation: zigzag-draw 2.703s ease-in-out infinite;
+}
+
+// Uklad telefoniczny. Do 393 dziala jak dotad (stale stopnie pisma, plynne kolumny),
+// powyzej rosnie proporcjonalnie, az tekst dojdzie do stopnia desktopowego (14.4px przy
+// 544). Dalej karta juz nie rosnie i stoi na srodku, a od 768 wchodzi uklad desktopowy,
+// w ktorym tekst jest wtedy nie mniejszy niz na telefonie.
+@media (max-width: 767px) {
+  :host {
+    --u: clamp(1px, calc(100vw / 393), 1.385px);
+  }
+
+  .page--home {
+    // marginesy kolumny projektow: od krawedzi karty i przy linii srodkowej
+    --cv-col-outer-pad: #{u(8)};
+    --cv-col-inner-pad: #{u(16)};
+  }
+
+  .page.page--home {
+    padding: u(20) u(10);
+  }
+
+  .page--home .cv {
+    // 373 = 393 minus marginesy strony; powyzej 544 karta zostaje przy tej szerokosci
+    width: min(100%, u(373));
+    padding: u(20) u(20) u(48);
+  }
+
+  .page--home .cv__header {
+    gap: u(8);
+    // oddech nad i pod znakiem z nazwa
+    padding: u(10) 0 u(8);
+  }
+
+  // Na ekranach wezszych niz ok. 367px znak z nazwa nie mieszcza sie obok adresu
+  // w pelnym stopniu, wiec caly blok maleje razem z szerokoscia okna.
+  .page--home .cv__identity {
+    padding-left: var(--cv-col-outer-pad);
+    font-size: min(u(19.84), 5.4vw);
+  }
+
+  // wersaliki sa szerokie - na najwezszych ekranach adres maleje razem z oknem
+  .page--home .cv__contact {
+    gap: u(4);
+    font-size: min(u(8.5), 2.45vw);
+    letter-spacing: 0.02em;
+  }
+
+  .page--home .cv__rule {
+    margin: u(12) 0 u(28);
+  }
+
+  .page--home {
+    --about-pad-outer: #{u(8)};
+    --about-pad-inner: #{u(18)};
+    // Rytm pionowy na telefonie. Nad kazda linia jest --section-pad i dolny oddech
+    // logotypu (14) - miedzy projektami niesie go --project-gap - a pod nia --section-pad.
+    --section-pad: #{u(26)};
+    --title-gap: #{u(22)};
+    --project-gap: #{u(26)};
+    // o tyle pionowa linia srodkowa wychodzi ponizej tresci obu kolumn
+    --line-tail: #{u(24)};
+    // wysokosc wiersza tekstu (.cv p) - etykieta projektu ma te sama
+    --text-line: calc(#{u(10.4)} * 1.65);
+  }
+
+  // Na telefonie uklad jest ten sam co na desktopie - dwie kolumny obok siebie, sekcje
+  // jedna pod druga - tylko z mniejszymi liczbami. Kazda sekcja jest kontenerem dla cqi,
+  // wiec naglowki, etykiety i adresy dopasowuja stopien pisma do szerokosci kolumny.
+  .page--home .cv__body {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .page--home .cv__column--projects {
+    padding: 0 var(--cv-col-inner-pad) var(--line-tail) var(--cv-col-outer-pad);
+  }
+
+  .page--home .cv__column--about {
+    padding: 0 var(--about-pad-outer) var(--line-tail) var(--about-pad-inner);
+  }
+
+  .page--home .cv__column .cv__section {
+    padding: var(--section-pad) 0;
+    container-type: inline-size;
+  }
+
+  .page--home .cv__column > .cv__section:first-child {
+    padding-top: 0;
+  }
+
+  .page--home .cv__column .cv__section:last-child {
+    padding-bottom: 0;
+  }
+
+  // Najdluzszy naglowek ma zostac w jednej linii: znak to 0.55em + 0.12em spacji.
+  .page--home .cv__column .cv__section .cv__section-title {
+    margin-bottom: var(--title-gap);
+    font-size: min(u(14.4), calc(100cqi / 10.9));
+    letter-spacing: 0.12em;
+  }
+
+  // Projekty plyna jeden pod drugim w rownym rytmie, jak na desktopie.
+  .page--home .partial {
+    row-gap: var(--project-gap);
+    padding-top: 0;
+  }
+
+  .page--home .partial > .inner-section + .inner-section {
+    padding-top: var(--section-pad);
+  }
+
+  // jak na desktopie, w skali telefonu
+  .page--home .partial > .inner-section + .inner-section:nth-child(2) {
+    margin-top: u(-5);
+    padding-top: calc(var(--section-pad) + u(5));
+  }
+
+  .page--home .cv p {
+    font-size: u(10.4);
+    line-height: 1.65;
+  }
+
+  .page--home .cv__item-title {
+    font-size: u(10.88);
+  }
+
+  .page--home .cv__item-role,
+  .page--home .cv-download {
+    font-size: u(9.76);
+  }
+
+  .page--home .cv-download {
+    margin: u(20) 0 u(26);
+    padding: u(12);
+    letter-spacing: 0.12em;
+  }
+
+  // Najdluzsza etykieta ("01. digital digger", 18 znakow) ma zostac w jednej linii:
+  // znak to 0.55em + 0.08em spacji, wiec 18 znakow = 11.34em szerokosci kolumny.
+  .page--home .iterator {
+    font-size: min(u(9.92), calc(100cqi / 11.6));
+    // wysokosc wiersza jak w akapicie obok (.cv p)
+    line-height: var(--text-line);
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+  }
+
+  // "http://digitaldigger.app" to 24 znaki po 0.57em; kolumna jest wezsza o wciecie u(9.6).
+  .page--home .project-url {
+    font-size: min(u(9.28), calc((100cqi - u(9.6)) / 13.9));
+    letter-spacing: 0.02em;
+    text-underline-offset: u(3);
+    margin-bottom: 0;
+  }
+
+  .page--home .project-description {
+    font-size: u(10.4);
+    line-height: 1.65;
+  }
+
+  .page--home {
+    --project-indent: #{u(9.6)};
+  }
+
+  .page--home .project-url::before {
+    font-size: u(10.4);
+  }
+
+  .page--home .project-tags {
+    gap: u(4);
+    margin-top: u(8);
+  }
+
+  .page--home .project-tags--plain {
+    margin-top: u(20);
+  }
+
+  .page--home .project-tags__item {
+    padding: u(2) u(5);
+    border-radius: u(3);
+    font-size: u(8.96);
+    letter-spacing: 0.04em;
+  }
+
+  .page--home .contact {
+    margin-top: u(26);
+    gap: u(4);
+  }
+
+  .page--home .cv p.contact__note {
+    margin-bottom: u(4);
+  }
+
+  .page--home .contact__field,
+  .page--home .contact__send {
+    padding: u(4) u(5);
+    border-radius: u(3);
+    font-size: u(8.96);
+    letter-spacing: 0.04em;
+  }
+
+  .page--home .logo-digital-digger {
+    gap: u(6);
+    // 2 od gory: przy tej wartosci dol napisu (ogonki liter "g") staje na linii
+    // dolnej krawedzi przycisku "download cv" w kolumnie obok
+    padding: u(2) 0 u(14);
+  }
+
+  .page--home .logo-digital-digger svg {
+    max-width: u(100);
+  }
+
+  // Napis jest szerszy niz waska kolumna - zamiast sie lamac, wchodzi rowno w jej marginesy.
+  .page--home .digital-logo-txt {
+    font-size: u(19.2);
+    white-space: nowrap;
+  }
+
+  .page--home #vinyl {
+    width: u(92);
+    height: u(108);
+    margin-bottom: u(-5);
+  }
+
+}
+
+@keyframes cv-enter {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes section-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes square {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes zigzag-draw {
+  0% {
+    stroke-dashoffset: 1;
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  55% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  75% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: -1;
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cv,
+  .cv__section,
+  #vinyl,
+  #chleb,
+  #zigzag,
+  #zigzag-mask-path {
+    animation: none;
+  }
+}
