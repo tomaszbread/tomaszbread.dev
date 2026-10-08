@@ -237,9 +237,14 @@
 
 .cv-download {
   // pod przyciskiem tekst plynie dalej, wiec dostaje wiecej oddechu niz akapit
+  display: block;
+  box-sizing: border-box;
   margin: u(20) 0 u(32);
   padding: u(20) u(20);
   width: 100%;
+  line-height: normal;
+  text-align: center;
+  text-decoration: none;
   border: none;
   border-radius: u(6);
   background: #3fae4f;
