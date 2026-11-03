@@ -601,6 +601,49 @@
   color: var(--digger-hover);
 }
 
+// Plyta i jej szum: szum lezy w osobnej warstwie nad plyta, wiec stoi w miejscu, gdy plyta sie kreci.
+.vinyl-wrap {
+  position: relative;
+  display: block;
+}
+
+// Szum winylu z pierwszej strony Digital Diggera (2018). Piec klatek - obrazkow z rysami
+// i kropkami rozsypanymi wokol plyty - pokazuje sie po jednej, co 150 ms, w tej samej
+// kolejnosci co wtedy, z pustymi klatkami pomiedzy. Klatki sa maskami, wiec maja kolor logo
+// i ciemnieja razem z plyta po najechaniu. Proporcje jak wtedy: klatka 3.6 x szersza od plyty.
+.vinyl-noise {
+  position: absolute;
+  // srodek plyty: polowa szerokosci i polowa wysokosci pudelka #vinyl (145 x 170)
+  left: 50%;
+  top: u(85);
+  width: min(u(522), calc(100vw - u(20)));
+  aspect-ratio: 841.9 / 595.3;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.vinyl-noise i {
+  position: absolute;
+  inset: 0;
+  background: var(--digger-mark);
+  mask: var(--noise) center / contain no-repeat;
+  opacity: 0;
+  animation: 1.8s steps(1, end) infinite;
+  transition: background-color 180ms ease;
+}
+
+// kolejnosc z 2018: 2, pusta, 1, pusta, 5, 2, 3, 4, pusta, 1, 4, 5 - po 1/12 cyklu kazda
+.vinyl-noise i:nth-child(1) { --noise: url("/illustrations/vinyl-noise/noise1.svg"); animation-name: vinyl-noise-1; }
+.vinyl-noise i:nth-child(2) { --noise: url("/illustrations/vinyl-noise/noise2.svg"); animation-name: vinyl-noise-2; }
+.vinyl-noise i:nth-child(3) { --noise: url("/illustrations/vinyl-noise/noise3.svg"); animation-name: vinyl-noise-3; }
+.vinyl-noise i:nth-child(4) { --noise: url("/illustrations/vinyl-noise/noise4.svg"); animation-name: vinyl-noise-4; }
+.vinyl-noise i:nth-child(5) { --noise: url("/illustrations/vinyl-noise/noise5.svg"); animation-name: vinyl-noise-5; }
+
+.project-link:hover .vinyl-noise i,
+.project-link:focus-visible .vinyl-noise i {
+  background: var(--digger-hover);
+}
+
 .project-link:hover #vinyl path,
 .project-link:focus-visible #vinyl path {
   fill: var(--digger-hover);
@@ -738,6 +781,87 @@
   }
 }
 
+@keyframes vinyl-noise-1 {
+  0% {
+    opacity: 0;
+  }
+  16.667% {
+    opacity: 1;
+  }
+  25.0% {
+    opacity: 0;
+  }
+  75.0% {
+    opacity: 1;
+  }
+  83.333% {
+    opacity: 0;
+  }
+}
+
+@keyframes vinyl-noise-2 {
+  0% {
+    opacity: 1;
+  }
+  8.333% {
+    opacity: 0;
+  }
+  41.667% {
+    opacity: 1;
+  }
+  50.0% {
+    opacity: 0;
+  }
+}
+
+@keyframes vinyl-noise-3 {
+  0% {
+    opacity: 0;
+  }
+  50.0% {
+    opacity: 1;
+  }
+  58.333% {
+    opacity: 0;
+  }
+}
+
+@keyframes vinyl-noise-4 {
+  0% {
+    opacity: 0;
+  }
+  58.333% {
+    opacity: 1;
+  }
+  66.667% {
+    opacity: 0;
+  }
+  83.333% {
+    opacity: 1;
+  }
+  91.667% {
+    opacity: 0;
+  }
+}
+
+@keyframes vinyl-noise-5 {
+  0% {
+    opacity: 0;
+  }
+  33.333% {
+    opacity: 1;
+  }
+  41.667% {
+    opacity: 0;
+  }
+  91.667% {
+    opacity: 1;
+  }
+  100.0% {
+    opacity: 0;
+  }
+}
+
 @keyframes zigzag-draw {
   0% {
     stroke-dashoffset: 1;
@@ -766,7 +890,8 @@
   #vinyl,
   #chleb,
   #zigzag,
-  #zigzag-mask-path {
+  #zigzag-mask-path,
+  .vinyl-noise i {
     animation: none;
   }
 }
