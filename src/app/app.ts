@@ -20,6 +20,8 @@ type ContactStatus = 'idle' | 'sending' | 'sent' | 'error';
 export class App {
   readonly yearsOfExperience = new Date().getFullYear() - CAREER_START_YEAR;
   readonly contactStatus = signal<ContactStatus>('idle');
+  // formularz kontaktowy jest na razie schowany - true pokazuje go z powrotem pod tagami
+  readonly showContactForm = false;
 
   async sendMessage(event: Event, form: HTMLFormElement): Promise<void> {
     event.preventDefault();
