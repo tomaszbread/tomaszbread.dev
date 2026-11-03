@@ -58,6 +58,11 @@
   animation: cv-enter 600ms ease-out both;
 }
 
+// Blok czekajacy na wejscie przy przewijaniu (scroll-reveal.ts) jest niewidoczny.
+[data-reveal-state="pending"] {
+  opacity: 0;
+}
+
 // W naglowku zostaje sam bochenek; kontakt i linia sa w stopce.
 .cv__header {
   display: flex;
@@ -608,18 +613,31 @@
 }
 
 // Szum winylu z pierwszej strony Digital Diggera (2018). Piec klatek - obrazkow z rysami
-// i kropkami rozsypanymi wokol plyty - pokazuje sie po jednej, co 150 ms, w tej samej
-// kolejnosci co wtedy, z pustymi klatkami pomiedzy. Klatki sa maskami, wiec maja kolor logo
-// i ciemnieja razem z plyta po najechaniu. Proporcje jak wtedy: klatka 3.6 x szersza od plyty.
+// i kropkami - pokazuje sie po jednej, w tej samej kolejnosci co wtedy, z pustymi klatkami
+// pomiedzy. Klatki sa maskami, wiec maja kolor logo i ciemnieja razem z plyta po najechaniu.
+// Subtelniej niz w 2018: mniejsze, wolniejsze i tylko w pierscieniu wokol plyty -
+// nad plyta szum jest wyciety, a dalej od niej zanika.
 .vinyl-noise {
   position: absolute;
   // srodek plyty: polowa szerokosci i polowa wysokosci pudelka #vinyl (145 x 170)
   left: 50%;
   top: u(85);
-  width: min(u(522), calc(100vw - u(20)));
+  width: min(u(360), calc(100vw - u(20)));
   aspect-ratio: 841.9 / 595.3;
   transform: translate(-50%, -50%);
   pointer-events: none;
+  // Pierscien: plyta ma promien ok. 52px. Druga warstwa ucina szum od dolu, zanim dojdzie
+  // do napisu "Digital Digger" (zaczyna sie ok. 87px pod srodkiem plyty).
+  mask:
+    radial-gradient(
+      circle at center,
+      transparent u(58),
+      #000 u(66),
+      #000 u(96),
+      transparent u(124)
+    ),
+    linear-gradient(to bottom, #000 calc(50% + u(66)), transparent calc(50% + u(78)));
+  mask-composite: intersect;
 }
 
 .vinyl-noise i {
@@ -628,7 +646,8 @@
   background: var(--digger-mark);
   mask: var(--noise) center / contain no-repeat;
   opacity: 0;
-  animation: 1.8s steps(1, end) infinite;
+  // 12 klatek po 400 ms
+  animation: 4.8s steps(1, end) infinite;
   transition: background-color 180ms ease;
 }
 

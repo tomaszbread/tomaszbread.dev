@@ -1,4 +1,5 @@
-import { Component, signal } from '@angular/core';
+import { afterNextRender, Component, DestroyRef, ElementRef, inject, signal } from '@angular/core';
+import { createScrollReveals } from './scroll-reveal';
 
 // rok rozpoczecia pracy komercyjnej - od niego liczy sie staz w sekcji "about me"
 const CAREER_START_YEAR = 2016;
@@ -22,6 +23,16 @@ export class App {
   readonly contactStatus = signal<ContactStatus>('idle');
   // formularz kontaktowy jest na razie schowany - true pokazuje go z powrotem pod tagami
   readonly showContactForm = false;
+
+  constructor() {
+    // wejscia przy przewijaniu dzialaja tylko w przegladarce, nie przy prerenderze
+    const host = inject<ElementRef<HTMLElement>>(ElementRef);
+    const destroy = inject(DestroyRef);
+    afterNextRender(() => {
+      const reveals = createScrollReveals(host.nativeElement);
+      destroy.onDestroy(() => reveals.destroy());
+    });
+  }
 
   async sendMessage(event: Event, form: HTMLFormElement): Promise<void> {
     event.preventDefault();
